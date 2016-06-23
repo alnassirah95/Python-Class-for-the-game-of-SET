@@ -1,0 +1,159 @@
+# a class for a SET card:
+
+class SET(object):
+    def __init__(self,x,y,z,w):
+        assert (x >= 0) and (x <= 2)
+        assert (y >= 0) and (y <= 2)
+        assert (z >= 0) and (z <= 2)
+        assert (w >= 0) and (w <= 2)
+        self._x = x
+        self._y = y
+        self._z = z
+        self._w = w
+    
+    def __repr__(self):
+        return "card with coordinates (%s,%s,%s,%s) " %(self._x,self._y,self._z,self._w)
+    
+    ''' you can also print the corresponding card where 
+    x = number
+    y = color
+    z = shading
+    w = symbol
+    values of each are assigned in the dictionary below
+    '''
+    def Card(self):
+        symbol = {0: 'diamonds', 1:'squiggles', 2:'ovals'}
+        color = {0: 'Red', 1:'Green', 2:'Purple'}
+        shade = {0: 'solid', 1:'striped', 2:'open'}
+        number = {0:3,1:1,2:2}
+        
+        print "a %s %s %s %s card"%(number[self._x],color[self._y],shade[self._z],symbol[self._w])
+    
+    # getters: 
+    def get_x(self):
+        return self._x
+    
+    def get_y(self):
+        return self._y
+    
+    def get_z(self):
+        return self._z
+    
+    def get_w(self):
+        return self._w
+    
+    # setters:
+    def set_x(self,x):
+         self._x = x
+    
+    def set_y(self,y):
+         self._y = y
+    
+    def set_z(self,z):
+         self._z = z
+    
+    def set_w(self,w):
+         self._w = w
+
+    # return the coordinates of the card:
+    def get_coord(self):
+        return [self._x,self._y,self._z,self._w]
+    
+    
+    
+    
+# Usefull methods that goes with the game of SET: 
+
+
+# a method to add two cards: 
+def addSET(a,b):
+    x = mod(a.get_x() + b.get_x(), 3)
+    y = mod(a.get_y() + b.get_y(), 3)
+    z = mod(a.get_z() + b.get_z(), 3)
+    w = mod(a.get_w() + b.get_w(), 3)
+    
+    res = SET(x,y,z,w)
+    
+    return res
+
+# checking if three cards, a,b,c, are collinear
+def are_collinear(a,b,c):
+    x = mod(a.get_x() + b.get_x() + c.get_x() , 3)
+    y = mod(a.get_y() + b.get_y() + c.get_y() , 3)
+    z = mod(a.get_z() + b.get_z() + c.get_z() , 3)
+    w = mod(a.get_w() + b.get_w() + c.get_w() , 3)
+    
+    if (x == 0) and (y == 0) and (z == 0) and (w == 0):
+        return True
+    else:
+        return False
+
+def are_coplanar(a,b,c,d):
+    x = mod(2*a.get_x() + 2*b.get_x() + c.get_x() + d.get_x() , 3)
+    y = mod(2*a.get_y() + 2*b.get_y() + c.get_y() + d.get_y() , 3)
+    z = mod(2*a.get_z() + 2*b.get_z() + c.get_z() + d.get_z() , 3)
+    w = mod(2*a.get_w() + 2*b.get_w() + c.get_w() + d.get_w() , 3)
+    
+    if (x == 0) and (y == 0) and (z == 0) and (w == 0):
+        return True
+    else:
+        return False
+
+#given two cards, find the third card that complete the SET: 
+def SETcomp(a,b): 
+    x = mod(-a.get_x() - b.get_x(), 3)
+    y = mod(-a.get_y() - b.get_y(), 3)
+    z = mod(-a.get_z() - b.get_z(), 3)
+    w = mod(-a.get_w() - b.get_w(), 3)
+    
+    res = SET(x,y,z,w)
+    return res
+
+###############################################
+# declaring an array of the cards of SET 
+set = [SET(x,y,z,w) for x in range(3) for y in range(3) for z in range(3) for w in range(3)]
+
+# note that the index of each card is the decimal value of the 4 digit ternary number system. set[10] returns the card with coordinates 0101 ( 9 + 1)
+
+# we can index the list "set" by the coordinates using the function below:
+def td(x,y,z,w):
+    assert (x >= 0) and (x <= 2)
+    assert (y >= 0) and (y <= 2)
+    assert (z >= 0) and (z <= 2)
+    assert (w >= 0) and (w <= 2)
+    return x*(3^3) + y*(3^2) + z*3 + w
+
+are_collinear(set[td(1,1,1,2)],set[td(1,2,0,2)],set[td(1,0,2,2)]) ---> TRUE
+
+# counting the number of SETs 
+count = 0 
+for x in range(81):
+    for y in range(81):
+        if y <= x:
+            continue
+        else:
+            for z in range(81):
+                if z <= y :
+                    continue
+                else:
+                    if(are_collinear(set[x],set[y],set[z])):
+                        count = count + 1
+    #count --> 1080
+
+count = 0
+for x in range(81):
+    for y in range(81):
+        if y <= x:
+            continue
+        else:
+            for z in range(81):
+                if z <= y or z <= x:
+                    continue
+                else:
+                    for w in range(81):
+                        if w <= z or w <= y or w <= x:
+                            continue
+                        else:
+                            if are_coplanar(set[x],set[y],set[z],set[w]):
+                                count = count + 1
+    #count--> 21060
